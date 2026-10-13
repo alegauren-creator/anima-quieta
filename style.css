@@ -180,3 +180,4 @@ main{position:relative;z-index:5;max-width:640px;margin:0 auto;padding:6px 16px 
 .jdel.arm{background:#f8dbe3;color:#a14d66}
 .tfront{background:radial-gradient(circle at 30% 20%,#fff6,#fff0 45%),linear-gradient(135deg,#9a84cf,#d98fae 55%,#e9a07f);text-shadow:0 1px 4px #0003}
 .jhead b{text-transform:none}.jhead b::first-letter{text-transform:uppercase}
+@media (max-width:380px){.bottom button{font-size:.64rem;padding:4px 2px}.bottom button span{font-size:1.2rem}}

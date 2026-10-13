@@ -56,133 +56,161 @@ if (!RM) { rs(); addEventListener('resize', rs); P = Array.from({ length: innerW
 let curView = 'home';
 function sweep() { if (RM) return; const s = $('#sweep'); s.innerHTML = ''; ['🍃', '🌸', '🍃', '🌿', '🍂', '🌸', '🍃'].forEach((e, i) => { const el = document.createElement('i'); el.textContent = e; el.style.top = (25 + i * 10 + Math.random() * 8) + '%'; el.style.animationDelay = i * 60 + 'ms'; s.appendChild(el); }); setTimeout(() => s.innerHTML = '', 1600); }
 function stagger(v) { [...v.querySelectorAll('.stag')].forEach((e, i) => { e.style.setProperty('--i', i); e.style.animation = 'none'; e.offsetHeight; e.style.animation = ''; }); }
+let navT = null, pendingFn = null;
 function go(name, push = true) {
   if (name === curView) return; const from = $('#v-' + curView), to = $('#v-' + name); if (!to) return;
+  if (navT) { clearTimeout(navT); pendingFn(); }
   sweep(); from.classList.add('leaving');
-  setTimeout(() => { from.hidden = true; from.classList.remove('leaving'); to.hidden = false; stagger(to); scrollTo(0, 0); setScene(to.dataset.scene); parallax(); }, RM ? 0 : 380);
-  curView = name; $$('.bottom button').forEach(b => b.classList.toggle('on', b.dataset.go === name));
+  pendingFn = () => { navT = null; $$('.view').forEach(v => { if (v !== to) v.hidden = true; v.classList.remove('leaving'); }); to.hidden = false; stagger(to); scrollTo(0, 0); setScene(to.dataset.scene); parallax(); };
+  navT = setTimeout(pendingFn, RM ? 0 : 380);
+  curView = name; $$('.bottom button').forEach(b => { b.classList.toggle('on', b.dataset.go === name); b.toggleAttribute('aria-current', b.dataset.go === name); });
   if (push) history.pushState({ v: name }, '', '#' + name);
   if (name !== 'respiro') stopBreath();
+  if (name !== 'medita') stopGuide();
 }
 document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) go(b.dataset.go); });
 addEventListener('popstate', e => go((e.state && e.state.v) || 'home', false));
 
-/* ---------- Splash ---------- */
-const h = new Date().getHours(); $('#hello').textContent = h < 12 ? 'Buongiorno 🌅' : h < 18 ? 'Buon pomeriggio ☀️' : 'Buonasera 🌙';
-setScene('alba'); stagger($('#v-home'));
-setTimeout(() => { $('#splash').classList.add('out'); setTimeout(() => $('#splash').remove(), 1100); }, RM ? 300 : 2600);
-const start = location.hash.slice(1); if (start && $('#v-' + start) && start !== 'home') setTimeout(() => go(start, false), 50);
 
-/* ---------- Tabs meditazione ---------- */
-$$('[data-tab]').forEach(b => b.onclick = () => { $$('[data-tab]').forEach(x => x.classList.toggle('on', x === b)); $$('#v-medita .tab').forEach(t => { t.classList.toggle('on', t.id === b.dataset.tab); }); stagger($('#' + b.dataset.tab)); });
+/* ---------- Lingua ---------- */
+const LANGS = ['it', 'en', 'fr'];
+let L = localStorage.getItem('aq_lang'); if (!LANGS.includes(L)) L = 'it';
+const T = k => (I18N[L][k] !== undefined ? I18N[L][k] : I18N.it[k]);
+const fmt = (s, o) => s.replace(/\{(\w)\}/g, (_, k) => o[k]);
 
 /* ---------- Posizioni ---------- */
 const S = '#5f6f78';
 const fig = (body) => `<svg viewBox="0 0 100 100" role="img"><ellipse cx="50" cy="92" rx="38" ry="5" fill="#cfe3d4"/><g class="fig" fill="none" stroke="${S}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">${body}</g></svg>`;
-const POS = [
-  ['Sukhasana · gambe incrociate', 'La posizione "facile". Siediti su un cuscino, incrocia le gambe con i piedi sotto le ginocchia opposte. Il cuscino alza il bacino così le ginocchia scendono verso il pavimento e la schiena resta dritta. Mani sulle ginocchia o in grembo.', 'Per tutti, ideale per iniziare.', fig('<circle cx="50" cy="20" r="8" fill="#fde3d4"/><path d="M50 29 L50 60"/><path d="M50 38 Q36 48 30 66 M50 38 Q64 48 70 66"/><path d="M22 76 Q50 64 78 76 M28 80 Q50 72 72 80"/>')],
-  ['Mezzo loto', 'Da gambe incrociate, appoggia un solo piede sulla coscia opposta, con la pianta verso l\'alto; l\'altro piede resta sotto la gamba. Alterna il lato nei vari giorni.', 'Intermedio: serve un po\' di apertura delle anche. Mai forzare il ginocchio.', fig('<circle cx="50" cy="20" r="8" fill="#e3d9f2"/><path d="M50 29 L50 60"/><path d="M50 38 Q36 48 30 66 M50 38 Q64 48 70 66"/><path d="M22 76 Q50 64 78 76"/><path d="M56 68 l14 -4"/>')],
-  ['Loto completo', 'Entrambi i piedi sulle cosce opposte. È molto stabile ma richiede grande flessibilità di anche e ginocchia.', 'Avanzato: solo se il corpo è pronto. Se senti dolore al ginocchio, scegli un\'altra posizione.', fig('<circle cx="50" cy="20" r="8" fill="#f8dbe3"/><path d="M50 29 L50 60"/><path d="M50 38 Q36 48 34 64 M50 38 Q64 48 66 64"/><path d="M22 76 Q50 62 78 76"/><path d="M30 68 l14 -4 M56 64 l14 4"/>')],
-  ['Seiza · in ginocchio', 'Inginocchiati e siediti sui talloni, oppure su un cuscino o una panchetta messi tra i piedi. La schiena si raddrizza in modo naturale.', 'Utile a chi non sta comodo a gambe incrociate. Con dolori alle ginocchia usa la sedia.', fig('<circle cx="50" cy="18" r="8" fill="#d6ebf7"/><path d="M50 27 L50 58"/><path d="M50 36 Q42 48 46 60"/><path d="M50 58 L70 62 L70 84 L32 84"/>')],
-  ['Su una sedia', 'Siediti vicino al bordo, piedi appoggiati a terra alla larghezza delle anche, schiena staccata dallo schienale, mani sulle cosce. È una posizione completa e rispettabile quanto le altre.', 'Per tutti, anche anziani o con dolori.', fig('<circle cx="46" cy="18" r="8" fill="#cfe3d4"/><path d="M46 27 L46 56"/><path d="M46 36 Q54 46 60 54"/><path d="M46 56 L66 56 L66 84"/><path d="M30 50 L30 86 M30 60 L72 60 M72 60 L72 86" stroke="#c4a98f"/>')],
-  ['Sdraiati · savasana', 'Distenditi sulla schiena, gambe leggermente aperte, braccia lungo il corpo con i palmi in su. Perfetta per il rilassamento e la scansione del corpo.', 'Attenzione: è facile addormentarsi. Va benissimo la sera.', fig('<circle cx="16" cy="74" r="7" fill="#fde3d4"/><path d="M24 76 L66 78 L88 80 M66 78 L88 74 M32 80 L56 84"/>')]
-];
-$('#postures').innerHTML = POS.map(([t, d, n, svg], i) => `<div class="card ${['c-sage', 'c-lav', 'c-rose', 'c-sky', 'c-peach', 'c-sage'][i]} stag"><div class="pos">${svg}<div><h3>${t}</h3></div></div><p>${d}</p><p class="muted">${n}</p></div>`).join('') +
-  `<div class="card c-peach stag"><h3>In ogni posizione</h3><ul class="dots"><li>Schiena dritta ma non rigida, come se un filo ti tirasse dolcemente verso l'alto.</li><li>Spalle basse e rilassate, mento leggermente rientrato.</li><li>Mani appoggiate sulle cosce o una sull'altra in grembo.</li><li>Il comfort viene prima della forma: se qualcosa fa male, cambia.</li></ul></div>`;
+const FIGS = [fig('<circle cx="50" cy="20" r="8" fill="#fde3d4"/><path d="M50 29 L50 60"/><path d="M50 38 Q36 48 30 66 M50 38 Q64 48 70 66"/><path d="M22 76 Q50 64 78 76 M28 80 Q50 72 72 80"/>'),fig('<circle cx="50" cy="20" r="8" fill="#e3d9f2"/><path d="M50 29 L50 60"/><path d="M50 38 Q36 48 30 66 M50 38 Q64 48 70 66"/><path d="M22 76 Q50 64 78 76"/><path d="M56 68 l14 -4"/>'),fig('<circle cx="50" cy="20" r="8" fill="#f8dbe3"/><path d="M50 29 L50 60"/><path d="M50 38 Q36 48 34 64 M50 38 Q64 48 66 64"/><path d="M22 76 Q50 62 78 76"/><path d="M30 68 l14 -4 M56 64 l14 4"/>'),fig('<circle cx="50" cy="18" r="8" fill="#d6ebf7"/><path d="M50 27 L50 58"/><path d="M50 36 Q42 48 46 60"/><path d="M50 58 L70 62 L70 84 L32 84"/>'),fig('<circle cx="46" cy="18" r="8" fill="#cfe3d4"/><path d="M46 27 L46 56"/><path d="M46 36 Q54 46 60 54"/><path d="M46 56 L66 56 L66 84"/><path d="M30 50 L30 86 M30 60 L72 60 M72 60 L72 86" stroke="#c4a98f"/>'),fig('<circle cx="16" cy="74" r="7" fill="#fde3d4"/><path d="M24 76 L66 78 L88 80 M66 78 L88 74 M32 80 L56 84"/>')];
+const PCOL = ['c-sage', 'c-lav', 'c-rose', 'c-sky', 'c-peach', 'c-sage'];
+function renderPostures() {
+  $('#postures').innerHTML = T('pos').map(([t, d, n], i) => `<div class="card ${PCOL[i]} stag"><div class="pos">${FIGS[i].replace('role="img"', `role="img" aria-label="${t}"`)}<h3>${t}</h3></div><p>${d}</p><p class="muted">${n}</p></div>`).join('') + `<div class="card c-peach stag">${T('pos_all')}</div>`;
+}
 
 /* ---------- Meditazioni guidate ---------- */
-const GUIDES = [
-  ['🌱 Principianti · Respiro e presenza (5 min)', 'c-sage', 25, ['Siediti comodo e chiudi gli occhi.', 'Fai tre respiri un po\' più profondi del solito.', 'Ora lascia il respiro libero, naturale.', 'Senti l\'aria fresca che entra dal naso…', '…e l\'aria tiepida che esce.', 'Se arriva un pensiero, va bene. Notalo e torna al respiro.', 'Senti il peso del corpo appoggiato.', 'Ogni respiro ti porta un po\' più qui.', 'Ancora qualche respiro, con calma.', 'Muovi piano mani e piedi.', 'Quando vuoi, riapri gli occhi. Grazie per questo momento.']],
-  ['🌿 Principianti · Scansione del corpo (6 min)', 'c-sky', 30, ['Mettiti comodo, seduto o sdraiato.', 'Porta l\'attenzione ai piedi. Senti com\'è il contatto.', 'Sali alle caviglie e ai polpacci. Lasciali morbidi.', 'Ginocchia e cosce: rilassale.', 'Il bacino e la pancia, che si muovono col respiro.', 'La schiena: lascia andare ogni tensione.', 'Le spalle scendono, le braccia diventano pesanti.', 'Il collo, la mascella, la fronte: tutto morbido.', 'Senti il corpo intero, che respira.', 'Fai un respiro profondo e torna piano qui.']],
-  ['🌸 Intermedio · Gentilezza amorevole (8 min)', 'c-rose', 40, ['Siediti con la schiena dritta e il cuore aperto.', 'Pensa a te stesso e ripeti dentro: "Che io possa stare bene."', '"Che io possa essere sereno. Che io possa essere in pace."', 'Ora pensa a una persona che ami. Augurale lo stesso.', '"Che tu possa stare bene, essere serena, essere in pace."', 'Pensa a una persona che conosci appena.', 'Augura anche a lei serenità e pace.', 'Se ti senti pronto, pensa a qualcuno con cui hai difficoltà. Augurale bene, per quanto puoi.', 'Allarga l\'augurio a tutti gli esseri viventi.', 'Resta qualche istante in questo calore. Poi riapri gli occhi.']],
-  ['🍃 Intermedio · Ascolto dei suoni (7 min)', 'c-lav', 35, ['Chiudi gli occhi e resta immobile.', 'Ascolta i suoni più lontani.', 'Poi quelli più vicini.', 'Non dare nomi ai suoni: ascoltali e basta.', 'Nota anche il silenzio tra un suono e l\'altro.', 'Se arriva un pensiero, trattalo come un suono che passa.', 'Allarga l\'ascolto a tutto, insieme.', 'Torna al respiro, poi riapri gli occhi.']],
-  ['🪷 Esperti · Consapevolezza aperta (15 min)', 'c-peach', 75, ['Siediti nella tua posizione stabile. Stabilizza la mente con il respiro.', 'Lascia andare l\'àncora del respiro. Resta aperto a tutto ciò che arriva.', 'Sensazioni, suoni, pensieri, emozioni: osservali sorgere e svanire.', 'Non trattenere, non respingere. Sii come il cielo che accoglie le nuvole.', 'Nota chi osserva. Riposa nella consapevolezza stessa.', 'Quando ti perdi, riconoscilo con dolcezza e torna ad aprirti.', 'Resta nel silenzio, senza fare nulla.', 'Raccogli l\'attenzione nel respiro, poi riapri gli occhi lentamente.']],
-  ['🔥 Esperti · Respiro contato in silenzio (20 min)', 'c-sage', 120, ['Posizione stabile, sguardo basso o occhi chiusi.', 'Conta le espirazioni da 1 a 10, poi ricomincia.', 'Se perdi il conto, riparti da 1 senza giudizio.', 'Dopo un po\', lascia il conteggio e segui solo il respiro.', 'Infine, lascia anche il respiro: solo presenza.', 'Mantieni la posizione immobile e la mente vigile.', 'Chiudi con tre respiri profondi e un momento di gratitudine.']]
-];
-let gTimer = null;
-$('#guides').innerHTML = GUIDES.map(([t, c, , st], i) => `<div class="card ${c} stag" data-g="${i}"><h3>${t}</h3><p class="gtext">${st[0]}</p><div class="prog"><i></i></div><div class="row"><button class="btn primary gstart">Inizia</button><button class="btn ghost gnext">Avanti ›</button></div></div>`).join('');
-function stopGuide() { clearInterval(gTimer); gTimer = null; $$('.gstart').forEach(b => b.textContent = 'Inizia'); }
-$$('#guides .card').forEach(card => {
-  const [, , sec, st] = GUIDES[card.dataset.g]; let i = 0; const tx = card.querySelector('.gtext'), bar = card.querySelector('.prog i');
-  const show = n => { i = n; tx.classList.add('fade'); setTimeout(() => { tx.textContent = st[i]; tx.classList.remove('fade'); }, 400); bar.style.width = ((i + 1) / st.length * 100) + '%'; if (i >= st.length - 1) stopGuide(); };
-  card.querySelector('.gnext').onclick = () => show(Math.min(i + 1, st.length - 1));
-  card.querySelector('.gstart').onclick = e => { const running = gTimer && e.target.textContent === 'Pausa'; stopGuide(); if (running) return; if (i >= st.length - 1) show(0); else bar.style.width = ((i + 1) / st.length * 100) + '%'; e.target.textContent = 'Pausa'; gTimer = setInterval(() => show(i + 1), sec * 1000); };
-});
+const GMETA = [['c-sage', 25], ['c-sky', 30], ['c-rose', 40], ['c-lav', 35], ['c-peach', 75], ['c-sage', 120]];
+let gTimer = null, gBtn = null;
+function stopGuide() { clearInterval(gTimer); gTimer = null; if (gBtn) gBtn.textContent = T('g_start'); gBtn = null; }
+function renderGuides() {
+  stopGuide();
+  $('#guides').innerHTML = T('guides').map(([t, st], i) => `<div class="card ${GMETA[i][0]} stag" data-g="${i}"><h3>${t}</h3><p class="gtext" aria-live="polite">${st[0]}</p><div class="prog" role="progressbar" aria-valuemin="1" aria-valuemax="${st.length}" aria-valuenow="1"><i style="width:${100 / st.length}%"></i></div><div class="row"><button class="btn primary gstart">${T('g_start')}</button><button class="btn ghost gnext">${T('g_next')}</button></div></div>`).join('');
+  $$('#guides .card').forEach(card => {
+    const gi = +card.dataset.g, sec = GMETA[gi][1], st = T('guides')[gi][1]; let i = 0;
+    const tx = card.querySelector('.gtext'), bar = card.querySelector('.prog i'), pg = card.querySelector('.prog'), sb = card.querySelector('.gstart');
+    const show = n => { i = n; tx.classList.add('fade'); setTimeout(() => { tx.textContent = st[i]; tx.classList.remove('fade'); }, RM ? 0 : 400); bar.style.width = ((i + 1) / st.length * 100) + '%'; pg.setAttribute('aria-valuenow', i + 1); if (i >= st.length - 1 && gBtn === sb) stopGuide(); };
+    card.querySelector('.gnext').onclick = () => show(Math.min(i + 1, st.length - 1));
+    sb.onclick = () => { const mine = gBtn === sb; stopGuide(); if (mine) return; if (i >= st.length - 1) show(0); gBtn = sb; sb.textContent = T('g_pause'); gTimer = setInterval(() => show(i + 1), sec * 1000); };
+  });
+}
+
+/* ---------- Tabs meditazione ---------- */
+$$('[data-tab]').forEach(b => b.onclick = () => { $$('[data-tab]').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-selected', x === b); }); $$('#v-medita .tab').forEach(t => t.classList.toggle('on', t.id === b.dataset.tab)); stagger($('#' + b.dataset.tab)); });
 
 /* ---------- Respiro guidato ---------- */
-const BR = {
-  '478': { d: 'Inspira dal naso per 4, trattieni per 7, espira dalla bocca per 8. Calma il corpo, ottimo prima di dormire. Inizia con 4 cicli.', ph: [['Inspira', 4, 1.7], ['Trattieni', 7, 1.7], ['Espira', 8, 1]], cyc: 4 },
-  box: { d: 'Respiro quadrato: inspira 4, trattieni 4, espira 4, trattieni 4. Come i lati di un quadrato. Aiuta concentrazione e calma.', ph: [['Inspira', 4, 1.7], ['Trattieni', 4, 1.7], ['Espira', 4, 1], ['Trattieni', 4, 1]], cyc: 6 },
-  dia: { d: 'Respiro diaframmatico: una mano sul petto, una sulla pancia. Inspirando gonfia la pancia (il petto resta fermo), espirando lasciala scendere. Inspira 4, espira 6.', ph: [['Inspira con la pancia', 4, 1.7], ['Espira piano', 6, 1]], cyc: 8 }
-};
-let brKey = '478', brT = null, brRun = false;
+const BRT = { '478': { s: [[4, 1.7], [7, 1.7], [8, 1]], cyc: 4 }, box: { s: [[4, 1.7], [4, 1.7], [4, 1], [4, 1]], cyc: 6 }, dia: { s: [[4, 1.7], [6, 1]], cyc: 8 } };
+let brKey = '478', brT = null, brRun = false, brDone = false;
 const bc = $('#bcircle');
-function setBr(k) { brKey = k; $('#brDesc').textContent = BR[k].d; $$('#breathTabs button').forEach(b => b.classList.toggle('on', b.dataset.br === k)); stopBreath(); }
-function stopBreath() { brRun = false; clearTimeout(brT); clearInterval(bc._c); bc.style.transitionDuration = '1s'; bc.style.transform = 'scale(1)'; $('#bphase').textContent = 'Pronto'; $('#bcount').textContent = ''; $('#bStart').textContent = 'Inizia'; $('#bCycles').textContent = ''; }
+function setBr(k) { brKey = k; $('#brDesc').textContent = T('br')[k][0]; $$('#breathTabs button').forEach(b => b.classList.toggle('on', b.dataset.br === k)); stopBreath(); }
+function stopBreath() { brRun = false; clearTimeout(brT); clearInterval(bc._c); bc.style.transitionDuration = '1.2s'; bc.style.transform = 'scale(1)'; $('#bphase').textContent = brDone ? T('br_done') : T('br_ready'); $('#bcount').textContent = ''; $('#bStart').textContent = T('br_start'); $('#bCycles').textContent = ''; brDone = false; }
 function runBreath() {
-  const cfg = BR[brKey]; let p = 0, c = 0; brRun = true; $('#bStart').textContent = 'Ferma';
+  const cfg = BRT[brKey]; let p = 0, c = 0; brRun = true; $('#bStart').textContent = T('br_stop');
   const step = () => { if (!brRun) return;
-    if (p === 0) { c++; if (c > cfg.cyc) { stopBreath(); $('#bphase').textContent = 'Ben fatto 🌿'; return; } $('#bCycles').textContent = `Ciclo ${c} di ${cfg.cyc}`; }
-    const [name, sec, sc] = cfg.ph[p]; $('#bphase').textContent = name; let left = sec; $('#bcount').textContent = left;
+    if (p === 0) { c++; if (c > cfg.cyc) { brDone = true; stopBreath(); return; } $('#bCycles').textContent = fmt(T('br_cycle'), { a: c, b: cfg.cyc }); }
+    const [sec, sc] = cfg.s[p], name = T('br')[brKey][1][p]; $('#bphase').textContent = name; let left = sec; $('#bcount').textContent = left;
     bc.style.transitionDuration = sec + 's'; bc.style.transform = `scale(${sc})`;
     clearInterval(bc._c); bc._c = setInterval(() => { left--; if (left > 0) $('#bcount').textContent = left; }, 1000);
-    if (navigator.vibrate && name.startsWith('Inspira')) try { navigator.vibrate(30); } catch (e) {}
-    p = (p + 1) % cfg.ph.length; brT = setTimeout(step, sec * 1000); };
+    p = (p + 1) % cfg.s.length; brT = setTimeout(step, sec * 1000); };
   step();
 }
 $$('#breathTabs button').forEach(b => b.onclick = () => setBr(b.dataset.br));
-$('#bStart').onclick = () => brRun ? stopBreath() : runBreath(); setBr('478');
+$('#bStart').onclick = () => brRun ? stopBreath() : runBreath();
 
 /* ---------- Musica ---------- */
-const AMBS = [['spa', '💆', 'c-lav', 'Pad caldi e campanelli'], ['pioggia', '🌧️', 'c-sky', 'Pioggia sottile'], ['onde', '🌊', 'c-sky', 'Mare che respira'], ['foresta', '🌲', 'c-sage', 'Vento e uccellini'], ['campane', '🔔', 'c-peach', 'Ciotole tibetane']];
-$('#ambList').innerHTML = AMBS.map(([k, e, c, d]) => `<button class="${c} stag" data-amb="${k}" aria-pressed="false"><span class="em">${e}</span><b>${Sound.NAMES[k]}</b><br><small class="muted">${d}</small></button>`).join('');
-function refreshMusic() { const cur = Sound.current; $$('[data-amb]').forEach(b => { b.classList.toggle('on', b.dataset.amb === cur); b.setAttribute('aria-pressed', b.dataset.amb === cur); }); $('#musicBtn').setAttribute('aria-pressed', !!cur); $('#musicBtn .lbl').textContent = cur ? Sound.NAMES[cur] : 'Musica'; }
-$$('[data-amb]').forEach(b => b.onclick = async () => { if (Sound.current === b.dataset.amb) await Sound.stop(); else await Sound.play(b.dataset.amb); refreshMusic(); armTimer(); });
-$('#musicBtn').onclick = async () => { if (Sound.current) await Sound.stop(); else await Sound.play(localStorage.getItem('aq_amb') || 'spa'); refreshMusic(); };
-let tMin = 0, tEnd = 0, tInt;
-function armTimer() { clearInterval(tInt); $('#timerLeft').textContent = ''; if (!tMin || !Sound.current) return; tEnd = Date.now() + tMin * 60000;
-  tInt = setInterval(() => { const l = tEnd - Date.now(); if (l <= 0) { clearInterval(tInt); Sound.stop(4).then(refreshMusic); $('#timerLeft').textContent = 'Timer finito 🌙'; return; } $('#timerLeft').textContent = `Si spegne tra ${Math.floor(l / 60000)}:${String(Math.floor(l / 1000) % 60).padStart(2, '0')}`; }, 1000); }
+const AMBS = [['spa', '💆', 'c-lav'], ['pioggia', '🌧️', 'c-sky'], ['onde', '🌊', 'c-sky'], ['foresta', '🌲', 'c-sage'], ['campane', '🔔', 'c-peach']];
+$('#ambList').innerHTML = AMBS.map(([k, e, c]) => `<button class="${c} stag" data-amb="${k}" aria-pressed="false"><span class="em" aria-hidden="true">${e}</span><b></b><br><small class="muted"></small></button>`).join('');
+function refreshMusic() { const cur = Sound.current; $$('[data-amb]').forEach(b => { const k = b.dataset.amb; b.querySelector('b').textContent = T('amb')[k][0]; b.querySelector('small').textContent = T('amb')[k][1]; b.classList.toggle('on', k === cur); b.setAttribute('aria-pressed', k === cur); }); $('#musicBtn').setAttribute('aria-pressed', !!cur); $('#musicBtn .lbl').textContent = cur ? T('amb')[cur][0] : T('music'); }
+const playAmb = n => { localStorage.setItem('aq_amb', n); return Sound.play(n); };
+$$('[data-amb]').forEach(b => b.onclick = async () => { if (Sound.current === b.dataset.amb) await Sound.stop(); else await playAmb(b.dataset.amb); refreshMusic(); armTimer(); });
+$('#musicBtn').onclick = async () => { if (Sound.current) await Sound.stop(); else await playAmb(localStorage.getItem('aq_amb') || 'spa'); refreshMusic(); armTimer(); };
+let tMin = 0, tEnd = 0, tInt, tDone = false;
+function tick() { const l = tEnd - Date.now(); if (l <= 0) { clearInterval(tInt); tDone = true; Sound.stop(4).then(refreshMusic); $('#timerLeft').textContent = T('timer_done'); return; } $('#timerLeft').textContent = fmt(T('timer_left'), { t: `${Math.floor(l / 60000)}:${String(Math.floor(l / 1000) % 60).padStart(2, '0')}` }); }
+function armTimer() { clearInterval(tInt); tDone = false; $('#timerLeft').textContent = ''; if (!tMin || !Sound.current) return; tEnd = Date.now() + tMin * 60000; tick(); tInt = setInterval(tick, 1000); }
 $$('#timerChips button').forEach(b => b.onclick = () => { tMin = +b.dataset.min; $$('#timerChips button').forEach(x => x.classList.toggle('on', x === b)); armTimer(); });
 $('#vol').value = Math.round(Sound.vol * 100); $('#vol').oninput = e => Sound.setVol(e.target.value / 100);
-const origPlay = Sound.play; Sound.play = n => { localStorage.setItem('aq_amb', n); return origPlay(n); };
 
-/* ---------- Consigli ---------- */
-const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’']/g, ' ').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
-const STOP = new Set('il lo la i gli le un uno una di a da in con su per tra fra e o ma che chi cosa come mi ti si ci vi non e sono sei ho hai ha io tu lui lei noi voi loro mio mia miei mie tuo tua mi del della dei delle al alla ai alle nel nella sul sulla questo questa quello quella molto tanto troppo piu poi anche se perche quando dove sempre mai ancora gia sto stai fare faccio posso devo vorrei voglio essere avere tutto tutti'.split(' '));
-const SYN = { angoscia: 'ansia', preoccupato: 'ansia', preoccupata: 'ansia', insonnia: 'sonno', ragazza: 'amore', ragazzo: 'amore', moglie: 'amore', marito: 'amore', capoufficio: 'lavoro', soldi: 'soldi', euro: 'soldi', mangiare: 'mangi', meditare: 'medit', palestra: 'palestr', depresso: 'trist', depressa: 'trist', giu: 'trist', solo: 'solo' };
-const TOPIC_NAMES = { ansia: 'Ansia', stress: 'Stress', amore: 'Amore', rottura: 'Cuore ferito', solitudine: 'Solitudine', amicizia: 'Amicizia', famiglia: 'Famiglia', lutto: 'Lutto', lavoro: 'Lavoro', soldi: 'Soldi', autostima: 'Autostima', paura: 'Paura', rabbia: 'Rabbia', cambiamento: 'Cambiamento', sonno: 'Sonno', salute: 'Corpo e movimento', alimentazione: 'Alimentazione consapevole', gratitudine: 'Gratitudine', perdono: 'Perdono', scopo: 'Senso della vita', creativita: 'Creatività', studio: 'Studio', motivazione: 'Motivazione', meditazione: 'Meditazione', natura: 'Natura', felicita: 'Felicità', tristezza: 'Tristezza', decisioni: 'Decisioni', presente: 'Vivere il presente', fiducia: 'Fiducia e spiritualità', gentilezza: 'Gentilezza', tempo: 'Il tempo', invecchiare: 'Gli anni che passano' };
-const GENTLE = ['suicid', 'uccidermi', 'ammazzarmi', 'farla finita', 'togliermi la vita', 'voglio morire', 'non voglio piu vivere', 'farmi del male', 'autolesion', 'tagliarmi'];
-const TOP = ADVICE.map(t => ({ ...t, kk: t.k.map(norm) }));
+/* ---------- Consigli (matching in IT/EN/FR) ---------- */
+const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’'`]/g, ' ').replace(/[^a-z0-9 -]+/g, ' ').replace(/\s+/g, ' ').trim();
+const STOP = new Set((
+  'il lo la i gli le un uno una di a da in con su per tra fra e o ma che chi cosa come mi ti si ci vi non sono sei ho hai ha io tu lui lei noi voi loro mio mia miei mie tuo tua del della dei delle al alla ai alle nel nella sul sulla questo questa quello quella molto tanto troppo piu poi anche se perche quando dove sempre mai ancora gia sto stai fare faccio posso devo vorrei voglio essere avere tutto tutti ' +
+  'the an and or but of to in on at for with is are am was be been i me my you your he she it we they them this that what how why when where do does did can could should would will have has had not no so very really just feel feeling im dont about from get any some there ' +
+  'le les un une des de du et ou mais je tu il elle nous vous ils elles me te se mon ma mes ton ta tes son sa ses ce cet cette ces que qui quoi comment pourquoi quand ou est suis es sont ai as a pas ne plus tres trop dans sur pour avec par en y au aux moi toi lui leur faire fais peux dois veux voudrais etre avoir tout tous bien'
+).split(' '));
+const SYN = { angoscia: 'ansia', preoccupato: 'ansia', preoccupata: 'ansia', insonnia: 'sonno', ragazza: 'amore', ragazzo: 'amore', moglie: 'amore', marito: 'amore', capoufficio: 'lavoro', euro: 'soldi', mangiare: 'mangi', meditare: 'medit', palestra: 'palestr', depresso: 'trist', depressa: 'trist', giu: 'trist',
+  sleepless: 'insomnia', jobless: 'unemploy', girlfriend: 'girlfriend', exhausted: 'exhaust', mum: 'mum', meditating: 'meditat', lonely: 'lonely', cash: 'money', grandma: 'grandm', grandpa: 'grandf',
+  copine: 'copine', boulot: 'travail', dodo: 'dormir', thune: 'argent', deprime: 'deprim', angoisse: 'angoiss' };
+const ALLK = {}; ADVICE.forEach(t => ALLK[t.t] = [...t.k, ...(ADVICE_EN[t.t] || { k: [] }).k, ...(ADVICE_FR[t.t] || { k: [] }).k].map(norm));
+const GENTLE = ['suicid', 'uccidermi', 'ammazzarmi', 'farla finita', 'togliermi la vita', 'voglio morire', 'non voglio piu vivere', 'farmi del male', 'autolesion', 'tagliarmi', 'kill myself', 'end it all', 'want to die', 'hurt myself', 'me tuer', 'en finir', 'veux mourir', 'me faire du mal'];
+const PRI = { lutto: 2, rottura: 1 };
 function match(q) {
   const n = norm(q); if (!n) return null;
   if (GENTLE.some(c => n.includes(c))) return { topic: null };
-  const toks = n.split(' ').filter(w => w && !STOP.has(w)).map(w => SYN[w] || w);
+  const toks = n.split(/[ -]/).filter(w => w && !STOP.has(w)).map(w => SYN[w] || w);
   let best = null, bs = 0;
-  TOP.forEach((t, ti) => { let s = 0; t.kk.forEach(k => {
-    if (k.includes(' ')) { if (n.includes(k)) s += 3; }
-    else if (k.length <= 3) { if (toks.includes(k)) s += 2; }
-    else if (toks.some(w => w.startsWith(k) || (w.length >= 5 && k.startsWith(w)))) s += 2;
-  }); if (s > bs) { bs = s; best = t; } });
-  return best ? { topic: best } : { topic: null };
+  for (const t in ALLK) { let s = 0; const ks = ALLK[t];
+    ks.forEach(k => { if (k.includes(' ') && (' ' + n + ' ').includes(' ' + k + (k.endsWith(' ') ? '' : ''))) s += 3; });
+    toks.forEach(w => { if (ks.some(k => !k.includes(' ') && (k.length <= 3 ? w === k : (w.startsWith(k) || (w.length >= 6 && k.startsWith(w)))))) s += 2; });
+    if (s > bs || (s && s === bs && (PRI[t] || 0) > (PRI[best] || 0))) { bs = s; best = t; } }
+  return { topic: best };
 }
-let lastTopic = null, lastIdx = -1;
-const pick = arr => { let i; do i = Math.random() * arr.length | 0; while (arr.length > 1 && i === lastIdx); lastIdx = i; return arr[i]; };
-function show(title, text) {
-  const a = $('#answer'); a.hidden = false; a.style.animation = 'none'; a.offsetHeight; a.style.animation = '';
-  $('#aTopic').textContent = title; $('#aText').innerHTML = text; a.scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block: 'center' });
+const adviceOf = t => L === 'en' ? ADVICE_EN[t].a : L === 'fr' ? ADVICE_FR[t].a : ADVICE.find(x => x.t === t).a;
+const generalOf = () => L === 'en' ? GENERAL_EN : L === 'fr' ? GENERAL_FR : GENERAL;
+let lastTopic = null, lastIdx = -1, shown = null;
+const pick = arr => { let i; do i = Math.random() * arr.length | 0; while (arr.length > 1 && i === lastIdx); lastIdx = i; return i; };
+function display() {
+  if (!shown) return; const a = $('#answer');
+  $('#aTopic').textContent = shown.t ? T('topics')[shown.t] : T('reflection');
+  $('#aText').textContent = (shown.t ? adviceOf(shown.t) : generalOf())[shown.i];
+  a.hidden = false;
 }
-function answer(q) {
-  const m = match(q); if (!m) return;
-  lastTopic = m.topic; if (m.topic) show(TOPIC_NAMES[m.topic.t] || m.topic.t, pick(m.topic.a)); else show('Una riflessione per te', pick(GENERAL));
+function show(t, anim = true) {
+  shown = { t, i: pick(t ? adviceOf(t) : generalOf()) }; display();
+  const a = $('#answer'); if (anim) { a.style.animation = 'none'; a.offsetHeight; a.style.animation = ''; }
+  a.scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block: 'center' });
 }
-window.__aq = { match };
+function answer(q) { const m = match(q); if (!m) return; lastTopic = m.topic; show(m.topic); }
+window.__aq = { match, lang: () => L };
 $('#askForm').onsubmit = e => { e.preventDefault(); answer($('#q').value); };
-$('#another').onclick = () => lastTopic ? show(TOPIC_NAMES[lastTopic.t], pick(lastTopic.a)) : show('Una riflessione per te', pick(GENERAL));
-$('#randomTip').onclick = () => { const t = ADVICE[Math.random() * ADVICE.length | 0]; lastTopic = t; show(TOPIC_NAMES[t.t], pick(t.a)); };
-$('#copyA').onclick = () => { navigator.clipboard && navigator.clipboard.writeText($('#aText').textContent + ' — Anima Quieta').then(() => { $('#copyA').textContent = 'Copiato ✓'; setTimeout(() => $('#copyA').textContent = 'Copia', 1500); }, () => {}); };
-['Mi sento in ansia', 'Non riesco a dormire', 'Mi ha lasciato', 'Come inizio a meditare?', 'Non ho motivazione'].forEach(s => { const b = document.createElement('button'); b.textContent = s; b.onclick = () => { $('#q').value = s; answer(s); }; $('#suggest').appendChild(b); });
-// consiglio del giorno
-const all = ADVICE.flatMap(t => t.a), day = Math.floor(Date.now() / 864e5); $('#dailyTip').textContent = all[(day * 37) % all.length];
+$('#q').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); answer($('#q').value); } });
+$('#another').onclick = () => show(lastTopic);
+$('#randomTip').onclick = () => { const t = ADVICE[Math.random() * ADVICE.length | 0].t; lastTopic = t; show(t); };
+$('#copyA').onclick = () => { const b = $('#copyA'); if (!navigator.clipboard) return; navigator.clipboard.writeText($('#aText').textContent + ' — ' + T('share_sig')).then(() => { b.textContent = T('copied'); setTimeout(() => b.textContent = T('copy'), 1500); }, () => {}); };
+const DAYLIST = ADVICE.flatMap(t => t.a.map((_, i) => [t.t, i])), day = Math.floor(Date.now() / 864e5), DT = DAYLIST[(day * 37) % DAYLIST.length];
+
+/* ---------- Applica lingua ---------- */
+function applyLang(l) {
+  L = l; localStorage.setItem('aq_lang', l); document.documentElement.lang = l;
+  $$('[data-i18n]').forEach(e => e.innerHTML = T(e.dataset.i18n));
+  $$('[data-i18n-ph]').forEach(e => e.placeholder = T(e.dataset.i18nPh));
+  $$('[data-i18n-aria]').forEach(e => e.setAttribute('aria-label', T(e.dataset.i18nAria)));
+  $$('[data-tab]').forEach((b, i) => b.textContent = T('tabs')[i]);
+  $$('#breathTabs button').forEach((b, i) => b.textContent = T('br_tabs')[i]);
+  $$('.bottom button em').forEach((e, i) => e.textContent = T('nav')[i]);
+  $$('[data-lang]').forEach(b => { b.classList.toggle('on', b.dataset.lang === l); b.setAttribute('aria-pressed', b.dataset.lang === l); });
+  const hr = new Date().getHours(); $('#hello').textContent = T('hello')[hr < 12 ? 0 : hr < 18 ? 1 : 2];
+  const sp = $('#spSub'); if (sp) sp.textContent = T('sp_sub');
+  $('#dailyTip').textContent = adviceOf(DT[0])[DT[1]];
+  $('#suggest').innerHTML = ''; T('suggest').forEach(s => { const b = document.createElement('button'); b.type = 'button'; b.textContent = s; b.onclick = () => { $('#q').value = s; answer(s); }; $('#suggest').appendChild(b); });
+  renderPostures(); renderGuides(); setBr(brKey); refreshMusic(); display();
+  if (tDone) $('#timerLeft').textContent = T('timer_done'); else if (tInt && tMin && Sound.current) tick();
+  document.title = 'Anima Quieta · ' + (l === 'it' ? 'di' : l === 'en' ? 'by' : 'par') + ' Alessio';
+}
+$$('[data-lang]').forEach(b => b.onclick = () => { if (b.dataset.lang !== L) { applyLang(b.dataset.lang); stagger($('#v-' + curView)); } });
+applyLang(L);
+
+/* ---------- Avvio / splash ---------- */
+setScene('alba'); stagger($('#v-home'));
+setTimeout(() => { const s = $('#splash'); s.classList.add('out'); setTimeout(() => s.remove(), 1100); }, RM ? 300 : 2600);
+const start = location.hash.slice(1); if (start && $('#v-' + start) && start !== 'home') setTimeout(() => go(start, false), 50);
 
 /* ---------- Offline ---------- */
 if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});

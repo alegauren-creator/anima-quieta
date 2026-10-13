@@ -21,7 +21,7 @@
     <path class="pt" d="M60 72 C38 74 14 66 6 52 C26 50 46 58 60 72Z" stroke="#9cc5a8"/>
     <path class="pt" d="M60 72 C82 74 106 66 114 52 C94 50 74 58 60 72Z" stroke="#9cc5a8"/></g></svg>
   <h1 class="sp-title">Anima Quieta</h1>
-  <p class="sp-sub">respira · ascolta · fiorisci</p>
+  <p class="sp-sub" id="spSub">respira · ascolta · fiorisci</p>
 </div>
 
 <div id="scene" aria-hidden="true"></div>
@@ -29,150 +29,100 @@
 <div id="sweep" aria-hidden="true"></div>
 
 <header class="top">
-  <button class="brand" data-go="home" aria-label="Home"><img src="icons/icon.svg" alt=""><span>Anima Quieta</span></button>
-  <button id="musicBtn" class="round" aria-pressed="false" aria-label="Musica di sottofondo"><span class="ico">♪</span><span class="lbl">Musica</span></button>
+  <button class="brand" data-go="home" aria-label="Home"><img src="icons/icon.svg" alt="" width="34" height="34"><span>Anima Quieta</span></button>
+  <div class="tools">
+    <div class="langsel" role="group" data-i18n-aria="lang_aria"><button data-lang="it" lang="it">IT</button><button data-lang="en" lang="en">EN</button><button data-lang="fr" lang="fr">FR</button></div>
+    <button id="musicBtn" class="round" aria-pressed="false" data-i18n-aria="music_aria"><span class="ico" aria-hidden="true">♪</span><span class="lbl" data-i18n="music"></span></button>
+  </div>
 </header>
 
 <main id="views">
-<!-- HOME -->
 <section class="view" id="v-home" data-scene="alba">
   <div class="hero">
-    <p class="hello" id="hello">Buongiorno</p>
-    <h2>Benvenuto nel tuo angolo di pace</h2>
-    <p class="lead">Prenditi un momento. Qui trovi meditazione, respiro, musiche rilassanti e parole gentili.</p>
+    <p class="hello" id="hello"></p>
+    <h2 data-i18n="home_h"></h2>
+    <p class="lead" data-i18n="home_lead"></p>
   </div>
-  <div class="daily card c-peach stag">
-    <h3>🌿 Consiglio del giorno</h3>
-    <p id="dailyTip"></p>
-  </div>
+  <div class="daily card c-peach stag" aria-live="polite"><h3 data-i18n="daily_h"></h3><p id="dailyTip"></p></div>
   <nav class="grid">
-    <button class="tile c-sage stag" data-go="medita"><span class="em">🧘</span><b>Meditazione</b><small>Basi, posizioni, guide</small></button>
-    <button class="tile c-sky stag" data-go="respiro"><span class="em">🌬️</span><b>Respiro guidato</b><small>4-7-8, quadrato, pancia</small></button>
-    <button class="tile c-lav stag" data-go="musica"><span class="em">🎶</span><b>Musiche rilassanti</b><small>Spa, pioggia, onde…</small></button>
-    <button class="tile c-rose stag" data-go="consiglio"><span class="em">💬</span><b>Chiedi un consiglio</b><small>Una parola amica</small></button>
-    <button class="tile c-peach stag wide" data-go="chisono"><span class="em">🌸</span><b>Chi sono</b><small>Alessio · poesia, fotografia, benessere</small></button>
+    <button class="tile c-sage stag" data-go="medita"><span class="em" aria-hidden="true">🧘</span><b data-i18n="t_med"></b><small data-i18n="t_med_s"></small></button>
+    <button class="tile c-sky stag" data-go="respiro"><span class="em" aria-hidden="true">🌬️</span><b data-i18n="t_br"></b><small data-i18n="t_br_s"></small></button>
+    <button class="tile c-lav stag" data-go="musica"><span class="em" aria-hidden="true">🎶</span><b data-i18n="t_mus"></b><small data-i18n="t_mus_s"></small></button>
+    <button class="tile c-rose stag" data-go="consiglio"><span class="em" aria-hidden="true">💬</span><b data-i18n="t_ask"></b><small data-i18n="t_ask_s"></small></button>
+    <button class="tile c-peach stag wide" data-go="chisono"><span class="em" aria-hidden="true">🌸</span><b data-i18n="t_me"></b><small data-i18n="t_me_s"></small></button>
   </nav>
 </section>
 
-<!-- MEDITAZIONE -->
 <section class="view" id="v-medita" data-scene="loto" hidden>
-  <h2 class="ttl stag">Meditazione</h2>
-  <div class="tabs stag" role="tablist">
-    <button class="on" data-tab="m-cos">Cos'è</button><button data-tab="m-basi">Primi passi</button><button data-tab="m-pos">Posizioni</button><button data-tab="m-guide">Guide</button><button data-tab="m-err">Errori e consigli</button>
+  <h2 class="ttl stag" data-i18n="med_ttl"></h2>
+  <div class="tabs stag" role="tablist" id="medTabs">
+    <button role="tab" aria-selected="true" class="on" data-tab="m-cos"></button><button role="tab" aria-selected="false" data-tab="m-basi"></button><button role="tab" aria-selected="false" data-tab="m-pos"></button><button role="tab" aria-selected="false" data-tab="m-guide"></button><button role="tab" aria-selected="false" data-tab="m-err"></button>
   </div>
-  <div class="tab on" id="m-cos">
-    <div class="card c-sage stag"><h3>Che cos'è la meditazione</h3>
-    <p>Meditare significa <b>allenare l'attenzione</b>: scegli un punto su cui appoggiarla (di solito il respiro) e, ogni volta che la mente si allontana, la riporti lì con gentilezza.</p>
-    <p>Non serve "svuotare la mente" né credere in qualcosa di particolare. È un'abitudine semplice, come curare un giardino: pochi minuti al giorno, con costanza.</p></div>
-    <div class="card c-sky stag"><h3>Cosa può darti</h3><ul class="dots">
-    <li>Più calma e meno tensione nei momenti difficili.</li><li>Più consapevolezza di pensieri ed emozioni.</li><li>Un aiuto a rilassarsi prima di dormire.</li><li>Più presenza nelle cose di tutti i giorni.</li></ul>
-    <p class="note">I benefici variano da persona a persona. La meditazione non sostituisce le cure mediche o psicologiche.</p></div>
-  </div>
-  <div class="tab" id="m-basi">
-    <div class="card c-lav stag"><h3>La tua prima meditazione, passo passo</h3><ol class="steps">
-    <li><b>Scegli un posto tranquillo</b> e spegni le notifiche.</li>
-    <li><b>Siediti comodo</b> su una sedia o un cuscino, schiena dritta ma morbida, spalle rilassate.</li>
-    <li><b>Metti un timer</b> di 5 minuti, così non pensi all'orologio.</li>
-    <li><b>Chiudi gli occhi</b> o abbassa lo sguardo verso il pavimento.</li>
-    <li><b>Ascolta il respiro</b> naturale: l'aria che entra e che esce dal naso, la pancia che si muove.</li>
-    <li><b>Quando ti distrai</b> (succederà tante volte, è normale), nota "sto pensando" e torna al respiro, senza giudicarti.</li>
-    <li><b>Alla fine</b>, fai un respiro profondo, muovi mani e piedi e riapri gli occhi piano.</li></ol>
-    <p>Ripeti ogni giorno, meglio alla stessa ora. Dopo una o due settimane puoi passare a 10 minuti.</p></div>
-  </div>
-  <div class="tab" id="m-pos"><div id="postures"></div></div>
-  <div class="tab" id="m-guide">
-    <p class="lead stag">Meditazioni brevi da seguire. Premi "Inizia": le frasi cambiano da sole.</p>
-    <div id="guides"></div>
-  </div>
-  <div class="tab" id="m-err">
-    <div class="card c-rose stag"><h3>Errori comuni</h3><ul class="dots">
-    <li><b>Voler fermare i pensieri.</b> I pensieri arrivano sempre: l'esercizio è accorgersene e tornare.</li>
-    <li><b>Giudicarsi.</b> "Non sono capace" è solo un altro pensiero. Lascialo passare.</li>
-    <li><b>Esagerare con la durata.</b> Meglio 5 minuti ogni giorno che un'ora una volta al mese.</li>
-    <li><b>Forzare la postura.</b> Se fa male, cambia posizione. La sedia va benissimo.</li>
-    <li><b>Controllare il respiro troppo.</b> Nella meditazione di base il respiro è naturale, non forzato.</li>
-    <li><b>Aspettarsi esperienze speciali.</b> La pace arriva in modo semplice e graduale.</li></ul></div>
-    <div class="card c-sage stag"><h3>Consigli utili</h3><ul class="dots">
-    <li>Medita prima di colazione o la sera prima di dormire.</li><li>Crea un piccolo angolo: un cuscino, una pianta, una candela (mai lasciarla accesa da sola).</li>
-    <li>Usa la musica dell'app a volume basso, se ti aiuta.</li><li>Tieni un diario: due righe su come ti senti dopo.</li>
-    <li>Se durante la meditazione emergono emozioni molto forti o ricordi dolorosi, fermati con gentilezza e, se serve, parlane con un professionista.</li>
-    <li>Con le tecniche di respiro, se ti gira la testa torna a respirare normalmente.</li></ul></div>
-  </div>
+  <div class="tab on" id="m-cos" role="tabpanel"><div class="card c-sage stag" data-i18n="m_cos1"></div><div class="card c-sky stag" data-i18n="m_cos2"></div></div>
+  <div class="tab" id="m-basi" role="tabpanel"><div class="card c-lav stag" data-i18n="m_basi"></div></div>
+  <div class="tab" id="m-pos" role="tabpanel"><div id="postures"></div></div>
+  <div class="tab" id="m-guide" role="tabpanel"><p class="lead stag" data-i18n="guides_lead"></p><div id="guides"></div></div>
+  <div class="tab" id="m-err" role="tabpanel"><div class="card c-rose stag" data-i18n="m_err1"></div><div class="card c-sage stag" data-i18n="m_err2"></div></div>
 </section>
 
-<!-- RESPIRO -->
 <section class="view" id="v-respiro" data-scene="cielo" hidden>
-  <h2 class="ttl stag">Respiro guidato</h2>
-  <div class="tabs stag" id="breathTabs">
-    <button class="on" data-br="478">4-7-8</button><button data-br="box">Respiro quadrato</button><button data-br="dia">Diaframmatico</button>
-  </div>
+  <h2 class="ttl stag" data-i18n="br_ttl"></h2>
+  <div class="tabs stag" id="breathTabs"><button class="on" data-br="478"></button><button data-br="box"></button><button data-br="dia"></button></div>
   <p class="lead stag" id="brDesc"></p>
-  <div class="breath stag">
-    <div class="ring r1"></div><div class="ring r2"></div>
-    <div id="bcircle"><span id="bphase">Pronto</span><small id="bcount"></small></div>
-  </div>
-  <div class="row stag"><button class="btn primary" id="bStart">Inizia</button><span id="bCycles" class="muted"></span></div>
-  <p class="note stag">Respira senza sforzo. Se senti giramenti di testa o fastidio, fermati e torna al respiro normale. In gravidanza o con problemi respiratori o cardiaci, chiedi prima al medico per le pause lunghe (4-7-8).</p>
+  <div class="breath stag"><div class="ring r1"></div><div class="ring r2"></div>
+    <div id="bcircle" aria-live="polite"><span id="bphase"></span><small id="bcount"></small></div></div>
+  <div class="row stag"><button class="btn primary" id="bStart"></button><span id="bCycles" class="muted"></span></div>
+  <p class="note stag" data-i18n="br_note"></p>
 </section>
 
-<!-- MUSICA -->
 <section class="view" id="v-musica" data-scene="mare" hidden>
-  <h2 class="ttl stag">Musiche rilassanti</h2>
-  <p class="lead stag">Suoni creati dal vivo sul tuo telefono: nessun download, funzionano anche offline.</p>
+  <h2 class="ttl stag" data-i18n="mus_ttl"></h2>
+  <p class="lead stag" data-i18n="mus_lead"></p>
   <div id="ambList" class="amb"></div>
   <div class="card c-sky stag">
-    <h3>⏳ Timer</h3>
-    <div class="chips" id="timerChips"><button data-min="0" class="on">Nessuno</button><button data-min="10">10 min</button><button data-min="20">20 min</button><button data-min="30">30 min</button><button data-min="60">60 min</button></div>
-    <p class="muted" id="timerLeft"></p>
-    <label class="vol">Volume <input type="range" id="vol" min="0" max="100" value="70"></label>
+    <h3 data-i18n="timer_h"></h3>
+    <div class="chips" id="timerChips"><button data-min="0" class="on" data-i18n="timer_none"></button><button data-min="10">10 min</button><button data-min="20">20 min</button><button data-min="30">30 min</button><button data-min="60">60 min</button></div>
+    <p class="muted" id="timerLeft" aria-live="polite"></p>
+    <label class="vol"><span data-i18n="vol"></span> <input type="range" id="vol" min="0" max="100" value="70"></label>
   </div>
 </section>
 
-<!-- CONSIGLIO -->
 <section class="view" id="v-consiglio" data-scene="bosco" hidden>
-  <h2 class="ttl stag">Chiedi un consiglio</h2>
-  <p class="lead stag">Scrivi cosa hai nel cuore. Ti risponderò con una parola amica.</p>
-  <form id="askForm" class="ask stag"><label for="q" class="sr">La tua domanda</label>
-    <textarea id="q" rows="3" placeholder="Es. Mi sento in ansia per il lavoro, cosa posso fare?"></textarea>
-    <button class="btn primary" type="submit">Chiedi 🌿</button></form>
+  <h2 class="ttl stag" data-i18n="ask_ttl"></h2>
+  <p class="lead stag" data-i18n="ask_lead"></p>
+  <form id="askForm" class="ask stag"><label for="q" class="sr" data-i18n="ask_label"></label>
+    <textarea id="q" rows="3" data-i18n-ph="ask_ph"></textarea>
+    <button class="btn primary" type="submit" data-i18n="ask_btn"></button></form>
   <div class="chips stag" id="suggest"></div>
-  <div id="answer" class="card c-rose answer" hidden><p class="topic" id="aTopic"></p><p id="aText"></p>
-    <div class="row"><button class="btn" id="another">Un altro consiglio</button><button class="btn ghost" id="copyA">Copia</button></div></div>
-  <div class="row stag"><button class="btn ghost" id="randomTip">✨ Sorprendimi</button></div>
+  <div id="answer" class="card c-rose answer" hidden aria-live="polite"><p class="topic" id="aTopic"></p><p id="aText"></p>
+    <div class="row"><button class="btn" id="another" data-i18n="another"></button><button class="btn ghost" id="copyA" data-i18n="copy"></button></div></div>
+  <div class="row stag"><button class="btn ghost" id="randomTip" data-i18n="surprise"></button></div>
 </section>
 
-<!-- CHI SONO -->
 <section class="view" id="v-chisono" data-scene="prato" hidden>
-  <h2 class="ttl stag">Chi sono</h2>
-  <div class="card c-peach stag bio">
-    <div class="avatar" aria-hidden="true">A</div>
-    <h3>Ciao, sono Alessio 🌿</h3>
-    <p>Scrivo da sempre: ho pubblicato dei libri che spaziano dalla spiritualità ai romanzi fantasy e alle poesie, nati dal desiderio di dare parole a ciò che si sente nel silenzio.</p>
-    <p>Sono fotografo e cerco la bellezza nei dettagli della natura: una foglia, la luce dell'alba, il mare che respira.</p>
-    <p>La spiritualità e la meditazione fanno parte della mia vita ogni giorno. Mi occupo anche di benessere fisico, fitness e alimentazione consapevole, perché corpo e anima crescono insieme.</p>
-    <p>Ho creato <b>Anima Quieta</b> come un piccolo rifugio gratuito, per chiunque abbia bisogno di una pausa e di una parola gentile.</p>
-  </div>
-  <a class="btn tiktok stag" href="https://www.tiktok.com/@a_g.auren" target="_blank" rel="noopener">♪ Seguimi su TikTok · @a_g.auren</a>
-  <div class="card c-lav stag"><h3>Contatti</h3>
-    <p>Per informazioni puoi contattarmi via email:</p>
+  <h2 class="ttl stag" data-i18n="me_ttl"></h2>
+  <div class="card c-peach stag bio"><div class="avatar" aria-hidden="true">A</div><div data-i18n="bio"></div></div>
+  <a class="btn tiktok stag" href="https://www.tiktok.com/@a_g.auren" target="_blank" rel="noopener" data-i18n="tiktok"></a>
+  <div class="card c-lav stag"><h3 data-i18n="contacts_h"></h3><p data-i18n="contacts_p"></p>
     <a class="btn" href="mailto:aleg.auren@gmail.com">✉️ aleg.auren@gmail.com</a>
-    <a class="btn wa" href="https://wa.me/qr/L4SHBNHXK6KGN1" target="_blank" rel="noopener">💬 Scrivimi su WhatsApp</a>
-  </div>
-  <div class="card c-sage stag"><h3>Privacy</h3>
-    <p>Anima Quieta non raccoglie dati personali: niente registrazione, niente pubblicità, niente tracciamento. Le domande che scrivi restano sul tuo telefono e non vengono inviate a nessuno. Le tue preferenze (per esempio il volume) sono salvate solo sul dispositivo.</p>
-    <p class="muted">Il sito è ospitato su GitHub Pages, che come ogni server può trattare in modo tecnico l'indirizzo IP per farlo funzionare. I link a TikTok, WhatsApp ed email aprono servizi esterni con le loro regole.</p></div>
-  <p class="muted center">Anima Quieta · gratuita per sempre · v1.0</p>
+    <a class="btn wa" href="https://wa.me/qr/L4SHBNHXK6KGN1" target="_blank" rel="noopener" data-i18n="wa"></a></div>
+  <div class="card c-sage stag" data-i18n="privacy"></div>
+  <p class="muted center" data-i18n="footer"></p>
 </section>
 </main>
 
-<nav class="bottom" aria-label="Sezioni">
-  <button data-go="home" class="on"><span>🏡</span>Home</button>
-  <button data-go="medita"><span>🧘</span>Medita</button>
-  <button data-go="respiro"><span>🌬️</span>Respira</button>
-  <button data-go="musica"><span>🎶</span>Suoni</button>
-  <button data-go="consiglio"><span>💬</span>Consiglio</button>
+<nav class="bottom" data-i18n-aria="nav_aria">
+  <button data-go="home" class="on"><span aria-hidden="true">🏡</span><em></em></button>
+  <button data-go="medita"><span aria-hidden="true">🧘</span><em></em></button>
+  <button data-go="respiro"><span aria-hidden="true">🌬️</span><em></em></button>
+  <button data-go="musica"><span aria-hidden="true">🎶</span><em></em></button>
+  <button data-go="consiglio"><span aria-hidden="true">💬</span><em></em></button>
+  <button data-go="chisono"><span aria-hidden="true">🌸</span><em></em></button>
 </nav>
+<script src="i18n.js"></script>
 <script src="advice.js"></script>
+<script src="advice_en.js"></script>
+<script src="advice_fr.js"></script>
 <script src="audio.js"></script>
 <script src="app.js"></script>
 </body>

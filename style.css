@@ -121,3 +121,19 @@ main{position:relative;z-index:5;max-width:640px;margin:0 auto;padding:6px 16px 
 .bottom button.on{color:var(--ink);background:linear-gradient(135deg,var(--sage),var(--lav))}
 .bottom button.on span{transform:translateY(-2px) scale(1.12)}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.stag{opacity:1}#particles{display:none}}
+/* v1.1 */
+.tools{display:flex;gap:8px;align-items:center}
+.langsel{display:flex;background:#ffffffb0;border-radius:30px;padding:3px;box-shadow:0 4px 14px #a98fd022}
+.langsel button{border:0;background:none;border-radius:30px;padding:6px 9px;font-size:.78rem;font-weight:700;letter-spacing:.5px;color:var(--muted);transition:all .3s}
+.langsel button.on{background:linear-gradient(135deg,var(--lav),var(--peach));color:var(--ink);box-shadow:0 2px 8px #a98fd044}
+.brand span{white-space:nowrap}
+@media (max-width:380px){.brand span{display:none}}
+.round .lbl{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card{backdrop-filter:none;background-color:#ffffffc8}
+.bottom button{flex:1;min-width:0}
+.bottom button em{font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.pos h3{margin:0}
+.tile{color:var(--ink)}
+.amb button{color:var(--ink)}
+.gtext{min-height:4.2em}
+@media (max-width:430px){.top{padding-left:12px;padding-right:12px}.round{padding:8px 11px}.round .lbl{display:none}.round .ico{font-size:1.15rem}.brand{font-size:1.05rem}}

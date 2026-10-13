@@ -43,12 +43,17 @@
     <h2 data-i18n="home_h"></h2>
     <p class="lead" data-i18n="home_lead"></p>
   </div>
-  <div class="daily card c-peach stag" aria-live="polite"><h3 data-i18n="daily_h"></h3><p id="dailyTip"></p></div>
+  <div class="duo">
+    <div class="card c-sage stag streak" id="streak"></div>
+    <div class="tarot stag" id="tarot"></div>
+  </div>
+  <div class="daily card c-peach stag" aria-live="polite"><h3 data-i18n="daily_h"></h3><p id="dailyTip"></p><div class="row" id="dailyRow"></div></div>
   <nav class="grid">
     <button class="tile c-sage stag" data-go="medita"><span class="em" aria-hidden="true">🧘</span><b data-i18n="t_med"></b><small data-i18n="t_med_s"></small></button>
     <button class="tile c-sky stag" data-go="respiro"><span class="em" aria-hidden="true">🌬️</span><b data-i18n="t_br"></b><small data-i18n="t_br_s"></small></button>
     <button class="tile c-lav stag" data-go="musica"><span class="em" aria-hidden="true">🎶</span><b data-i18n="t_mus"></b><small data-i18n="t_mus_s"></small></button>
     <button class="tile c-rose stag" data-go="consiglio"><span class="em" aria-hidden="true">💬</span><b data-i18n="t_ask"></b><small data-i18n="t_ask_s"></small></button>
+    <button class="tile c-sky stag wide" data-go="diario"><span class="em" aria-hidden="true">📔</span><b id="tDiary"></b><small id="tDiaryS"></small></button>
     <button class="tile c-peach stag wide" data-go="chisono"><span class="em" aria-hidden="true">🌸</span><b data-i18n="t_me"></b><small data-i18n="t_me_s"></small></button>
   </nav>
 </section>
@@ -99,6 +104,19 @@
   <div class="row stag"><button class="btn ghost" id="randomTip" data-i18n="surprise"></button></div>
 </section>
 
+<section class="view" id="v-diario" data-scene="prato" hidden>
+  <h2 class="ttl stag" id="jTtl"></h2>
+  <p class="lead stag" id="jLead"></p>
+  <form class="card c-peach stag jform" id="jForm"><h3 id="jToday"></h3>
+    <label><span>1</span><input id="j1" maxlength="200" autocomplete="off"></label>
+    <label><span>2</span><input id="j2" maxlength="200" autocomplete="off"></label>
+    <label><span>3</span><input id="j3" maxlength="200" autocomplete="off"></label>
+    <div class="row"><button class="btn primary" type="submit" id="jSave"></button><span class="muted" id="jMsg" aria-live="polite"></span></div></form>
+  <p class="note stag" id="jPriv"></p>
+  <h3 class="stag" id="jPast"></h3>
+  <div id="jList"></div>
+</section>
+
 <section class="view" id="v-chisono" data-scene="prato" hidden>
   <h2 class="ttl stag" data-i18n="me_ttl"></h2>
   <div class="card c-peach stag bio"><div class="avatar" aria-hidden="true">A</div><div data-i18n="bio"></div></div>
@@ -123,7 +141,9 @@
 <script src="advice.js"></script>
 <script src="advice_en.js"></script>
 <script src="advice_fr.js"></script>
+<script src="intentions.js"></script>
 <script src="audio.js"></script>
 <script src="app.js"></script>
+<script src="features.js"></script>
 </body>
 </html>

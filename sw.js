@@ -1,4 +1,4 @@
-const C='anima-quieta-v6';const F=['./','index.html','style.css','app.js','audio.js','advice.js','advice_en.js','advice_fr.js','i18n.js','manifest.webmanifest','icons/icon.svg','icons/icon-192.png','icons/icon-512.png'];
+const C='anima-quieta-v7';const F=['./','index.html','style.css','app.js','audio.js','advice.js','advice_en.js','advice_fr.js','i18n.js','intentions.js','features.js','manifest.webmanifest','icons/icon.svg','icons/icon-192.png','icons/icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(F)));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim()});
 self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET'||new URL(r.url).origin!==location.origin)return;

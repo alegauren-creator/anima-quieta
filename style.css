@@ -137,3 +137,46 @@ main{position:relative;z-index:5;max-width:640px;margin:0 auto;padding:6px 16px 
 .amb button{color:var(--ink)}
 .gtext{min-height:4.2em}
 @media (max-width:430px){.top{padding-left:12px;padding-right:12px}.round{padding:8px 11px}.round .lbl{display:none}.round .ico{font-size:1.15rem}.brand{font-size:1.05rem}}
+/* v1.2 features */
+.duo{display:grid;grid-template-columns:1fr;gap:0}
+.streak{display:flex;gap:14px;align-items:center}
+.fl-wrap{position:relative;flex:none;width:96px;height:90px}
+.flower{width:96px;height:90px;overflow:visible}
+.flower .fl-bloom{transform-box:fill-box;transform-origin:center;animation:sway2 6s ease-in-out infinite}
+.flower .fl-stem{transform-box:fill-box;transform-origin:bottom}
+.fl-wrap.grow .fl-p{transform-box:fill-box;transform-origin:bottom center;animation:sprout 1.4s cubic-bezier(.3,1.5,.5,1) both}
+.fl-wrap.grow .fl-stem{stroke-dasharray:120;stroke-dashoffset:120;animation:draw 1.2s ease forwards}
+@keyframes sprout{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes sway2{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+.spark{position:absolute;left:46px;top:30px;width:8px;height:8px;border-radius:50%;background:#ffe3a3;box-shadow:0 0 12px #ffd27a;animation:spark 1.6s ease-out forwards;opacity:0}
+.spark.s2{animation-delay:.2s;left:30px;top:40px}.spark.s3{animation-delay:.4s;left:64px;top:38px}
+@keyframes spark{0%{opacity:0;transform:translateY(0) scale(.5)}30%{opacity:1}100%{opacity:0;transform:translateY(-50px) scale(1.4)}}
+.st-info h3{margin:0;font-size:1.15rem}.stage{color:var(--sage2)}
+.st-n{margin:.2rem 0}.st-msg{margin:.2rem 0 .3rem}
+.btn.sm{padding:7px 14px;font-size:.88rem}
+.tarot{perspective:1200px;margin:14px 0}
+.tcard{position:relative;display:block;width:100%;height:190px;border:0;padding:0;background:none;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.4,.2,.2,1)}
+.tcard.flip{transform:rotateY(180deg)}
+.tcard:not(.flip){animation:hover3d 5s ease-in-out infinite}
+@keyframes hover3d{0%,100%{transform:rotateY(-6deg) translateY(0)}50%{transform:rotateY(6deg) translateY(-4px)}}
+.tface{position:absolute;inset:0;border-radius:var(--r);backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:18px;box-shadow:0 10px 28px #7f9aa533;border:1px solid #fff;text-align:center}
+.tfront{background:radial-gradient(circle at 30% 20%,#fff8,#fff0 40%),linear-gradient(135deg,#b9a6e0,#f4c6d3 55%,#fde3d4);color:#fff;text-shadow:0 1px 3px #0002}
+.tfront b{font:500 1.5rem Georgia,serif}.tfront small{opacity:.95}
+.tstar{position:absolute;top:14px;left:18px;font-size:1.2rem;animation:breathe 3s infinite}.tmoon{position:absolute;bottom:12px;right:18px;font-size:1.3rem;animation:breathe 4s 1s infinite}
+.tback{transform:rotateY(180deg);background:linear-gradient(135deg,#fff,#e3d9f2 60%,#d6ebf7)}
+.tback small{color:var(--lav2);font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:.75rem}
+.tphrase{font:1.2rem/1.4 Georgia,serif;color:var(--ink)}
+.tshare{justify-content:center}
+.jform label{display:flex;align-items:center;gap:10px;margin:8px 0}
+.jform label span{flex:none;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--peach),var(--rose));font-weight:700}
+.jform input{flex:1;border:1px solid #fff;border-radius:14px;padding:12px;font:inherit;background:#ffffffd0;min-width:0}
+.jform.saved{animation:glow 1.2s ease}
+.jhint{display:block;font-family:"Nunito",system-ui,sans-serif;font-size:.85rem;margin-top:2px}
+.jday{animation:rise .6s ease both;animation-delay:calc(var(--i)*70ms)}
+.jday.bye{animation:vout .45s ease forwards}
+.jhead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.jhead b{text-transform:capitalize}
+[hidden]{display:none!important}
+.jdel.arm{background:#f8dbe3;color:#a14d66}
+.tfront{background:radial-gradient(circle at 30% 20%,#fff6,#fff0 45%),linear-gradient(135deg,#9a84cf,#d98fae 55%,#e9a07f);text-shadow:0 1px 4px #0003}
+.jhead b{text-transform:none}.jhead b::first-letter{text-transform:uppercase}

@@ -69,7 +69,7 @@ function go(name, push = true) {
   if (name !== 'medita') stopGuide();
 }
 document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) go(b.dataset.go); });
-addEventListener('popstate', e => go((e.state && e.state.v) || 'home', false));
+addEventListener('popstate', e => go((e.state && e.state.v) || location.hash.slice(1) || 'home', false));
 
 
 /* ---------- Lingua ---------- */
@@ -97,7 +97,7 @@ function renderGuides() {
   $$('#guides .card').forEach(card => {
     const gi = +card.dataset.g, sec = GMETA[gi][1], st = T('guides')[gi][1]; let i = 0;
     const tx = card.querySelector('.gtext'), bar = card.querySelector('.prog i'), pg = card.querySelector('.prog'), sb = card.querySelector('.gstart');
-    const show = n => { i = n; tx.classList.add('fade'); setTimeout(() => { tx.textContent = st[i]; tx.classList.remove('fade'); }, RM ? 0 : 400); bar.style.width = ((i + 1) / st.length * 100) + '%'; pg.setAttribute('aria-valuenow', i + 1); if (i >= st.length - 1 && gBtn === sb) stopGuide(); };
+    const show = n => { i = n; tx.classList.add('fade'); setTimeout(() => { tx.textContent = st[i]; tx.classList.remove('fade'); }, RM ? 0 : 400); bar.style.width = ((i + 1) / st.length * 100) + '%'; pg.setAttribute('aria-valuenow', i + 1); if (i >= st.length - 1) { if (gBtn === sb) stopGuide(); dispatchEvent(new CustomEvent('aq:practice', { detail: 'guide' })); } };
     card.querySelector('.gnext').onclick = () => show(Math.min(i + 1, st.length - 1));
     sb.onclick = () => { const mine = gBtn === sb; stopGuide(); if (mine) return; if (i >= st.length - 1) show(0); gBtn = sb; sb.textContent = T('g_pause'); gTimer = setInterval(() => show(i + 1), sec * 1000); };
   });
@@ -115,7 +115,7 @@ function stopBreath() { brRun = false; clearTimeout(brT); clearInterval(bc._c); 
 function runBreath() {
   const cfg = BRT[brKey]; let p = 0, c = 0; brRun = true; $('#bStart').textContent = T('br_stop');
   const step = () => { if (!brRun) return;
-    if (p === 0) { c++; if (c > cfg.cyc) { brDone = true; stopBreath(); return; } $('#bCycles').textContent = fmt(T('br_cycle'), { a: c, b: cfg.cyc }); }
+    if (p === 0) { c++; if (c > cfg.cyc) { brDone = true; stopBreath(); dispatchEvent(new CustomEvent('aq:practice', { detail: 'breath' })); return; } $('#bCycles').textContent = fmt(T('br_cycle'), { a: c, b: cfg.cyc }); }
     const [sec, sc] = cfg.s[p], name = T('br')[brKey][1][p]; $('#bphase').textContent = name; let left = sec; $('#bcount').textContent = left;
     bc.style.transitionDuration = sec + 's'; bc.style.transform = `scale(${sc})`;
     clearInterval(bc._c); bc._c = setInterval(() => { left--; if (left > 0) $('#bcount').textContent = left; }, 1000);
@@ -178,7 +178,7 @@ function show(t, anim = true) {
   a.scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block: 'center' });
 }
 function answer(q) { const m = match(q); if (!m) return; lastTopic = m.topic; show(m.topic); }
-window.__aq = { match, lang: () => L };
+window.__aq = { match, lang: () => L, T: k => T(k), go: v => go(v) };
 $('#askForm').onsubmit = e => { e.preventDefault(); answer($('#q').value); };
 $('#q').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); answer($('#q').value); } });
 $('#another').onclick = () => show(lastTopic);
@@ -202,6 +202,7 @@ function applyLang(l) {
   $('#suggest').innerHTML = ''; T('suggest').forEach(s => { const b = document.createElement('button'); b.type = 'button'; b.textContent = s; b.onclick = () => { $('#q').value = s; answer(s); }; $('#suggest').appendChild(b); });
   renderPostures(); renderGuides(); setBr(brKey); refreshMusic(); display();
   if (tDone) $('#timerLeft').textContent = T('timer_done'); else if (tInt && tMin && Sound.current) tick();
+  dispatchEvent(new CustomEvent('aq:lang', { detail: l }));
   document.title = 'Anima Quieta · ' + (l === 'it' ? 'di' : l === 'en' ? 'by' : 'par') + ' Alessio';
 }
 $$('[data-lang]').forEach(b => b.onclick = () => { if (b.dataset.lang !== L) { applyLang(b.dataset.lang); stagger($('#v-' + curView)); } });
